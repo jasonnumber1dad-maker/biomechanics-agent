@@ -46,5 +46,5 @@ if uploaded_file is not None:
         )
 
     st.info(
-        "MediaPipe is temporarily disabled because this Codespace is running Python 3.14. Video uploads are working and pose analysis will be added after switching to Python 3.11."
+        "Video upload and playback are operational. Automated biomechanical analysis is currently under development."
     )
