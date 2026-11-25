@@ -30,7 +30,7 @@ if uploaded_file is not None:
 
     st.success("Video uploaded successfully!")
 
-st.video(uploaded_file.getvalue())
+    st.video(uploaded_file.getvalue())
 
     if st.button("Analyze Video"):
 
@@ -38,23 +38,26 @@ st.video(uploaded_file.getvalue())
 
         # Save uploaded video
         tfile = tempfile.NamedTemporaryFile(delete=False)
-        tfile.write(uploaded_file.read())
+        tfile.write(uploaded_file.getvalue())
 
         video_path = tfile.name
 
         st.write("✅ Video saved successfully")
         st.write(f"Video path: {video_path}")
 
-        # Open with OpenCV
+        # Open video with OpenCV
         cap = cv2.VideoCapture(video_path)
 
-        frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-        fps = cap.get(cv2.CAP_PROP_FPS)
+        if not cap.isOpened():
+            st.error("Could not open video file.")
+        else:
+            frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+            fps = cap.get(cv2.CAP_PROP_FPS)
 
-        st.subheader("Video Information")
+            st.subheader("Video Information")
 
-        st.write(f"Frames detected: {frame_count}")
-        st.write(f"FPS: {fps:.2f}")
+            st.write(f"Frames detected: {frame_count}")
+            st.write(f"FPS: {fps:.2f}")
 
         cap.release()
 
@@ -65,6 +68,4 @@ st.video(uploaded_file.getvalue())
 # Footer
 st.divider()
 
-st.caption(
-    "© Apex Fastpitch Biomechanics Agent"
-)
+st.caption("© Apex Fastpitch Biomechanics Agent")
