@@ -1,4 +1,6 @@
 import streamlit as st
+import cv2
+import tempfile
 
 # Page Configuration
 st.set_page_config(
@@ -10,23 +12,12 @@ st.set_page_config(
 # Header
 st.title("🥎 Apex Fastpitch Biomechanics Agent")
 
-st.caption("Version 0.1.0")
+st.caption("Version 0.2.0")
 
 st.markdown("""
 ### AI-Powered Softball Mechanics Analysis
 
 Upload hitting or pitching videos for biomechanical review.
-
-**Current Features**
-- Video upload
-- Video playback
-- Analysis dashboard
-
-**Coming Soon**
-- MediaPipe pose tracking
-- Joint angle measurements
-- Kinematic sequencing
-- AI coaching recommendations
 """)
 
 # Video Upload
@@ -35,42 +26,45 @@ uploaded_file = st.file_uploader(
     type=["mp4", "mov", "avi"]
 )
 
-# Display Results
 if uploaded_file is not None:
 
     st.success("Video uploaded successfully!")
 
     st.video(uploaded_file)
-    st.success("Analysis started...")
-    st.subheader("AI Analysis Report")
 
-    col1, col2, col3 = st.columns(3)
+    if st.button("Analyze Video"):
 
-    with col1:
-        st.metric(
-            "Front Knee Angle",
-            "174°"
+        st.success("Analysis started...")
+
+        # Save uploaded video
+        tfile = tempfile.NamedTemporaryFile(delete=False)
+        tfile.write(uploaded_file.read())
+
+        video_path = tfile.name
+
+        st.write("✅ Video saved successfully")
+        st.write(f"Video path: {video_path}")
+
+        # Open with OpenCV
+        cap = cv2.VideoCapture(video_path)
+
+        frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        fps = cap.get(cv2.CAP_PROP_FPS)
+
+        st.subheader("Video Information")
+
+        st.write(f"Frames detected: {frame_count}")
+        st.write(f"FPS: {fps:.2f}")
+
+        cap.release()
+
+        st.info(
+            "OpenCV successfully opened the video. Next step is MediaPipe pose detection."
         )
-
-    with col2:
-        st.metric(
-            "Spine Angle",
-            "38°"
-        )
-
-    with col3:
-        st.metric(
-            "Kinetic Chain",
-            "Hips → Torso → Hands"
-        )
-
-    st.info(
-        "Video upload and playback are operational. Automated biomechanical analysis is currently under development."
-    )
 
 # Footer
 st.divider()
 
 st.caption(
-    "© Apex Fastpitch Biomechanics Agent | Demo Release v0.1.0"
+    "© Apex Fastpitch Biomechanics Agent"
 )
