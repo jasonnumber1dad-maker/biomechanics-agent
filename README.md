@@ -1,1 +1,1 @@
-# biomechanics-agent
+softball pitching and hitting biomechanics analyzer
