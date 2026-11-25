@@ -1,6 +1,8 @@
 import streamlit as st
 from metrics import calculate_angle
 import cv2
+import mediapipe as mp
+import numpy as np
 import tempfile
 
 # Page Configuration
