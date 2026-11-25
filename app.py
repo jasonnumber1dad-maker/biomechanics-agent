@@ -30,7 +30,7 @@ if uploaded_file is not None:
 
     st.success("Video uploaded successfully!")
 
-    st.video(uploaded_file)
+st.video(uploaded_file.getvalue())
 
     if st.button("Analyze Video"):
 
