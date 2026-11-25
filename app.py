@@ -1,22 +1,41 @@
 import streamlit as st
 
+# Page Configuration
 st.set_page_config(
     page_title="Apex Fastpitch Biomechanics Agent",
     page_icon="🥎",
     layout="wide"
 )
 
+# Header
 st.title("🥎 Apex Fastpitch Biomechanics Agent")
 
-st.write(
-    "Upload a softball swing or pitching video."
-)
+st.caption("Version 0.1.0")
 
+st.markdown("""
+### AI-Powered Softball Mechanics Analysis
+
+Upload hitting or pitching videos for biomechanical review.
+
+**Current Features**
+- Video upload
+- Video playback
+- Analysis dashboard
+
+**Coming Soon**
+- MediaPipe pose tracking
+- Joint angle measurements
+- Kinematic sequencing
+- AI coaching recommendations
+""")
+
+# Video Upload
 uploaded_file = st.file_uploader(
     "Choose a video",
     type=["mp4", "mov", "avi"]
 )
 
+# Display Results
 if uploaded_file is not None:
 
     st.success("Video uploaded successfully!")
@@ -42,9 +61,16 @@ if uploaded_file is not None:
     with col3:
         st.metric(
             "Kinetic Chain",
-            "Hips -> Torso -> Hands"
+            "Hips → Torso → Hands"
         )
 
     st.info(
         "Video upload and playback are operational. Automated biomechanical analysis is currently under development."
     )
+
+# Footer
+st.divider()
+
+st.caption(
+    "© Apex Fastpitch Biomechanics Agent | Demo Release v0.1.0"
+)
