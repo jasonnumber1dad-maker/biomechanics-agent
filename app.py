@@ -42,7 +42,7 @@ if uploaded_file is not None:
 
         video_path = tfile.name
 
-        st.write("✅ Video saved successfully")
+        st.write("Video saved successfully")
         st.write(f"Video path: {video_path}")
 
         # Open video with OpenCV
