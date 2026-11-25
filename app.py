@@ -41,7 +41,7 @@ if uploaded_file is not None:
     st.success("Video uploaded successfully!")
 
     st.video(uploaded_file)
-
+    st.success("Analysis started...")
     st.subheader("AI Analysis Report")
 
     col1, col2, col3 = st.columns(3)
