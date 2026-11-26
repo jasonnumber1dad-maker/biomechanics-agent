@@ -49,10 +49,10 @@ if uploaded_file is not None:
         st.write(f"Video path: {video_path}")
 
         # Open video with OpenCV
-cap = cv2.VideoCapture(video_path)
+        cap = cv2.VideoCapture(video_path)
 
-mp_pose = mp.solutions.pose
-pose = mp_pose.Pose()
+        mp_pose = mp.solutions.pose
+        pose = mp_pose.Pose()
 
 if not cap.isOpened():
             st.error("Could not open video file.")
