@@ -49,9 +49,12 @@ if uploaded_file is not None:
         st.write(f"Video path: {video_path}")
 
         # Open video with OpenCV
-        cap = cv2.VideoCapture(video_path)
+cap = cv2.VideoCapture(video_path)
 
-        if not cap.isOpened():
+mp_pose = mp.solutions.pose
+pose = mp_pose.Pose()
+
+if not cap.isOpened():
             st.error("Could not open video file.")
         else:
             frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -61,7 +64,50 @@ if uploaded_file is not None:
 
             st.write(f"Frames detected: {frame_count}")
             st.write(f"FPS: {fps:.2f}")
+ret, frame = cap.read()
 
+if ret:
+
+    rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+    results = pose.process(rgb)
+
+    if results.pose_landmarks:
+
+        landmarks = results.pose_landmarks.landmark
+
+        shoulder = [
+            landmarks[12].x,
+            landmarks[12].y
+        ]
+
+        elbow = [
+            landmarks[14].x,
+            landmarks[14].y
+        ]
+
+        wrist = [
+            landmarks[16].x,
+            landmarks[16].y
+        ]
+
+        elbow_angle = calculate_angle(
+            shoulder,
+            elbow,
+            wrist
+        )
+
+        st.subheader("Biomechanics Analysis")
+
+        st.metric(
+            "Right Elbow Angle",
+            f"{int(elbow_angle)}°"
+        )
+
+    else:
+        st.warning(
+            "No athlete detected in first frame."
+        )
         cap.release()
 
         st.info(
