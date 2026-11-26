@@ -1,5 +1,8 @@
 import streamlit as st
 from metrics import calculate_angle
+from pitching import calculate_pitching_score
+from reports import generate_feedback
+
 import cv2
 import mediapipe as mp
 import tempfile
@@ -12,7 +15,7 @@ st.set_page_config(
 )
 
 st.title("🥎 Apex Fastpitch Biomechanics Agent")
-st.caption("Version 0.5.0")
+st.caption("Version 0.6.0")
 
 st.markdown("""
 ### AI-Powered Softball Mechanics Analysis
@@ -34,7 +37,6 @@ if uploaded_file is not None:
 
         with st.spinner("Analyzing mechanics..."):
 
-            # Save uploaded file
             tfile = tempfile.NamedTemporaryFile(delete=False)
             tfile.write(uploaded_file.getvalue())
             video_path = tfile.name
@@ -178,13 +180,12 @@ if uploaded_file is not None:
                         )
 
                 cap.release()
-
                 pose.close()
 
                 if len(elbow_angles) == 0:
 
                     st.warning(
-                        "No athlete detected."
+                        "No athlete detected in analyzed frames."
                     )
 
                 else:
@@ -204,27 +205,17 @@ if uploaded_file is not None:
                         / len(hip_angles)
                     )
 
-                    score = 100
+                    score = calculate_pitching_score(
+                        avg_elbow,
+                        avg_knee,
+                        avg_hip
+                    )
 
-                    recommendations = []
-
-                    if avg_elbow < 140:
-                        score -= 10
-                        recommendations.append(
-                            "Maintain a stronger arm extension."
-                        )
-
-                    if avg_knee < 120:
-                        score -= 10
-                        recommendations.append(
-                            "Improve lower-body drive and knee stability."
-                        )
-
-                    if avg_hip < 150:
-                        score -= 10
-                        recommendations.append(
-                            "Increase hip engagement through the motion."
-                        )
+                    feedback = generate_feedback(
+                        avg_elbow,
+                        avg_knee,
+                        avg_hip
+                    )
 
                     st.subheader(
                         "Biomechanics Analysis"
@@ -263,7 +254,7 @@ if uploaded_file is not None:
                                 display_frame,
                                 cv2.COLOR_BGR2RGB
                             ),
-                            caption="Detected Pose",
+                            caption="Pose Detection Frame",
                             use_container_width=True
                         )
 
@@ -271,18 +262,11 @@ if uploaded_file is not None:
                         "Coaching Feedback"
                     )
 
-                    if recommendations:
-
-                        for item in recommendations:
-                            st.warning(item)
-
-                    else:
-
-                        st.success(
-                            "Mechanics appear balanced in sampled frames."
-                        )
+                    for item in feedback:
+                        st.write(f"• {item}")
 
 st.divider()
+
 st.caption(
     "© Apex Fastpitch Biomechanics Agent"
 )
