@@ -3,7 +3,6 @@ def generate_feedback(
     knee_angle,
     hip_angle
 ):
-
     feedback = []
 
     if elbow_angle < 140:
@@ -21,7 +20,7 @@ def generate_feedback(
             "Increase hip engagement."
         )
 
-    if len(feedback) == 0:
+    if not feedback:
         feedback.append(
             "Mechanics appear balanced."
         )
