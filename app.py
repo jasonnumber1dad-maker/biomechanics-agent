@@ -11,18 +11,15 @@ st.set_page_config(
     layout="wide"
 )
 
-# Header
 st.title("🥎 Apex Fastpitch Biomechanics Agent")
-
-st.caption("Version 0.2.0")
+st.caption("Version 0.5.0")
 
 st.markdown("""
 ### AI-Powered Softball Mechanics Analysis
 
-Upload hitting or pitching videos for biomechanical review.
+Upload a softball hitting or pitching video for analysis.
 """)
 
-# Video Upload
 uploaded_file = st.file_uploader(
     "Choose a video",
     type=["mp4", "mov", "avi"]
@@ -31,194 +28,261 @@ uploaded_file = st.file_uploader(
 if uploaded_file is not None:
 
     st.success("Video uploaded successfully!")
-
     st.video(uploaded_file.getvalue())
 
     if st.button("Analyze Video"):
 
-        st.success("Analysis started...")
+        with st.spinner("Analyzing mechanics..."):
 
-        # Save uploaded video
-        tfile = tempfile.NamedTemporaryFile(delete=False)
+            # Save uploaded file
+            tfile = tempfile.NamedTemporaryFile(delete=False)
+            tfile.write(uploaded_file.getvalue())
+            video_path = tfile.name
 
-        tfile.write(uploaded_file.getvalue())
+            cap = cv2.VideoCapture(video_path)
 
-        video_path = tfile.name
+            mp_pose = mp.solutions.pose
+            mp_draw = mp.solutions.drawing_utils
 
-        st.write("Video saved successfully")
-        st.write(f"Video path: {video_path}")
-
-        # Open video with OpenCV
-        cap = cv2.VideoCapture(video_path)
-
-        # Initialize MediaPipe
-        mp_pose = mp.solutions.pose
-        mp_draw = mp.solutions.drawing_utils
-
-        pose = mp_pose.Pose()
-
-        if not cap.isOpened():
-
-            st.error("Could not open video file.")
-
-        else:
-
-            frame_count = int(
-                cap.get(cv2.CAP_PROP_FRAME_COUNT)
+            pose = mp_pose.Pose(
+                static_image_mode=False,
+                model_complexity=1,
+                min_detection_confidence=0.5,
+                min_tracking_confidence=0.5
             )
 
-            fps = cap.get(
-                cv2.CAP_PROP_FPS
-            )
+            if not cap.isOpened():
 
-            st.subheader(
-                "Video Information"
-            )
+                st.error("Could not open video.")
 
-            st.write(
-                f"Frames detected: {frame_count}"
-            )
+            else:
 
-            st.write(
-                f"FPS: {fps:.2f}"
-            )
-
-            elbow_angles = []
-            knee_angles = []
-            hip_angles = []
-
-            display_frame = None
-
-            if ret:
-
-                rgb = cv2.cvtColor(
-                    frame,
-                    cv2.COLOR_BGR2RGB
+                frame_count = int(
+                    cap.get(cv2.CAP_PROP_FRAME_COUNT)
                 )
 
-                results = pose.process(rgb)
+                fps = cap.get(
+                    cv2.CAP_PROP_FPS
+                )
 
-                if results.pose_landmarks:
+                st.subheader("Video Information")
 
-                    mp_draw.draw_landmarks(
+                col1, col2 = st.columns(2)
+
+                with col1:
+                    st.metric(
+                        "Frames",
+                        frame_count
+                    )
+
+                with col2:
+                    st.metric(
+                        "FPS",
+                        f"{fps:.2f}"
+                    )
+
+                elbow_angles = []
+                knee_angles = []
+                hip_angles = []
+
+                display_frame = None
+
+                frames_to_process = 30
+
+                for _ in range(frames_to_process):
+
+                    ret, frame = cap.read()
+
+                    if not ret:
+                        break
+
+                    rgb = cv2.cvtColor(
                         frame,
-                        results.pose_landmarks,
-                        mp_pose.POSE_CONNECTIONS
+                        cv2.COLOR_BGR2RGB
                     )
 
-                    landmarks = (
-                        results.pose_landmarks.landmark
+                    results = pose.process(rgb)
+
+                    if results.pose_landmarks:
+
+                        display_frame = frame.copy()
+
+                        mp_draw.draw_landmarks(
+                            display_frame,
+                            results.pose_landmarks,
+                            mp_pose.POSE_CONNECTIONS
+                        )
+
+                        landmarks = (
+                            results.pose_landmarks.landmark
+                        )
+
+                        shoulder = [
+                            landmarks[12].x,
+                            landmarks[12].y
+                        ]
+
+                        elbow = [
+                            landmarks[14].x,
+                            landmarks[14].y
+                        ]
+
+                        wrist = [
+                            landmarks[16].x,
+                            landmarks[16].y
+                        ]
+
+                        hip = [
+                            landmarks[24].x,
+                            landmarks[24].y
+                        ]
+
+                        knee = [
+                            landmarks[26].x,
+                            landmarks[26].y
+                        ]
+
+                        ankle = [
+                            landmarks[28].x,
+                            landmarks[28].y
+                        ]
+
+                        elbow_angle = calculate_angle(
+                            shoulder,
+                            elbow,
+                            wrist
+                        )
+
+                        knee_angle = calculate_angle(
+                            hip,
+                            knee,
+                            ankle
+                        )
+
+                        hip_angle = calculate_angle(
+                            shoulder,
+                            hip,
+                            knee
+                        )
+
+                        elbow_angles.append(
+                            elbow_angle
+                        )
+
+                        knee_angles.append(
+                            knee_angle
+                        )
+
+                        hip_angles.append(
+                            hip_angle
+                        )
+
+                cap.release()
+
+                pose.close()
+
+                if len(elbow_angles) == 0:
+
+                    st.warning(
+                        "No athlete detected."
                     )
 
-                    # Right Elbow
-                    shoulder = [
-                        landmarks[12].x,
-                        landmarks[12].y
-                    ]
+                else:
 
-                    elbow = [
-                        landmarks[14].x,
-                        landmarks[14].y
-                    ]
-
-                    wrist = [
-                        landmarks[16].x,
-                        landmarks[16].y
-                    ]
-
-                    elbow_angle = calculate_angle(
-                        shoulder,
-                        elbow,
-                        wrist
+                    avg_elbow = (
+                        sum(elbow_angles)
+                        / len(elbow_angles)
                     )
 
-                    # Right Knee
-                    hip = [
-                        landmarks[24].x,
-                        landmarks[24].y
-                    ]
-
-                    knee = [
-                        landmarks[26].x,
-                        landmarks[26].y
-                    ]
-
-                    ankle = [
-                        landmarks[28].x,
-                        landmarks[28].y
-                    ]
-
-                    knee_angle = calculate_angle(
-                        hip,
-                        knee,
-                        ankle
+                    avg_knee = (
+                        sum(knee_angles)
+                        / len(knee_angles)
                     )
 
-                    # Right Hip
-                    hip_angle = calculate_angle(
-                        shoulder,
-                        hip,
-                        knee
+                    avg_hip = (
+                        sum(hip_angles)
+                        / len(hip_angles)
                     )
+
+                    score = 100
+
+                    recommendations = []
+
+                    if avg_elbow < 140:
+                        score -= 10
+                        recommendations.append(
+                            "Maintain a stronger arm extension."
+                        )
+
+                    if avg_knee < 120:
+                        score -= 10
+                        recommendations.append(
+                            "Improve lower-body drive and knee stability."
+                        )
+
+                    if avg_hip < 150:
+                        score -= 10
+                        recommendations.append(
+                            "Increase hip engagement through the motion."
+                        )
 
                     st.subheader(
                         "Biomechanics Analysis"
                     )
 
-                    c1, c2, c3 = st.columns(3)
+                    c1, c2, c3, c4 = st.columns(4)
 
                     with c1:
                         st.metric(
-                            "Right Elbow Angle",
-                            f"{int(elbow_angle)}°"
+                            "Elbow",
+                            f"{avg_elbow:.1f}°"
                         )
 
                     with c2:
                         st.metric(
-                            "Right Knee Angle",
-                            f"{int(knee_angle)}°"
+                            "Knee",
+                            f"{avg_knee:.1f}°"
                         )
 
                     with c3:
                         st.metric(
-                            "Right Hip Angle",
-                            f"{int(hip_angle)}°"
+                            "Hip",
+                            f"{avg_hip:.1f}°"
                         )
 
-                    st.image(
-                        cv2.cvtColor(
-                            frame,
-                            cv2.COLOR_BGR2RGB
-                        ),
-                        caption="Pose Detection Frame",
-                        use_container_width=True
+                    with c4:
+                        st.metric(
+                            "Score",
+                            f"{score}/100"
+                        )
+
+                    if display_frame is not None:
+
+                        st.image(
+                            cv2.cvtColor(
+                                display_frame,
+                                cv2.COLOR_BGR2RGB
+                            ),
+                            caption="Detected Pose",
+                            use_container_width=True
+                        )
+
+                    st.subheader(
+                        "Coaching Feedback"
                     )
 
-                    st.success(
-                        "Athlete detected successfully."
-                    )
+                    if recommendations:
 
-                else:
+                        for item in recommendations:
+                            st.warning(item)
 
-                    st.warning(
-                        "No athlete detected in first frame."
-                    )
+                    else:
 
-            else:
+                        st.success(
+                            "Mechanics appear balanced in sampled frames."
+                        )
 
-                st.error(
-                    "Could not read the first frame."
-                )
-
-        cap.release()
-
-        st.info(
-            "OpenCV and MediaPipe analysis completed."
-        )
-
-# Footer
 st.divider()
-
 st.caption(
     "© Apex Fastpitch Biomechanics Agent"
 )
