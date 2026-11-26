@@ -52,6 +52,7 @@ if uploaded_file is not None:
 
         # Initialize MediaPipe
         mp_pose = mp.solutions.pose
+        mp_draw = mp.solutions.drawing_utils
         pose = mp_pose.Pose()
 
         if not cap.isOpened():
@@ -79,9 +80,9 @@ if uploaded_file is not None:
                 )
 
                 results = pose.process(rgb)
-
+                
                 if results.pose_landmarks:
-
+                    mp_draw.draw_landmarks(frame,results.pose_landmarks,mp_pose.POSE_CONNECTIONS)
                     landmarks = results.pose_landmarks.landmark
 
                     # Right elbow
@@ -158,7 +159,11 @@ if uploaded_file is not None:
                             "Right Hip Angle",
                             f"{int(hip_angle)}°"
                         )
-
+                              st.image(
+                              cv2.cvtColor(frame, cv2.COLOR_BGR2RGB),
+                              caption="Pose Detection Frame",
+                              use_container_width=True
+)
                     st.success(
                         "Athlete detected successfully."
                     )
