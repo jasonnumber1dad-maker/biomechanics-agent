@@ -83,8 +83,11 @@ if uploaded_file is not None:
                 f"FPS: {fps:.2f}"
             )
 
-            # Read first frame
-            ret, frame = cap.read()
+            elbow_angles = []
+            knee_angles = []
+            hip_angles = []
+
+            display_frame = None
 
             if ret:
 
