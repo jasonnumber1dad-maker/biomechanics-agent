@@ -155,14 +155,15 @@ if uploaded_file is not None:
                         )
 
                     with c3:
-                        st.metric(
+                       st.metric(
                             "Right Hip Angle",
                             f"{int(hip_angle)}°"
-                        )
-                              st.image(
-                              cv2.cvtColor(frame, cv2.COLOR_BGR2RGB),
-                              caption="Pose Detection Frame",
-                              use_container_width=True
+    )
+
+                    st.image(
+                       cv2.cvtColor(frame, cv2.COLOR_BGR2RGB),
+                       caption="Pose Detection Frame",
+                       use_container_width=True
 )
                     st.success(
                         "Athlete detected successfully."
