@@ -2,7 +2,6 @@ import streamlit as st
 from metrics import calculate_angle
 import cv2
 import mediapipe as mp
-import numpy as np
 import tempfile
 
 # Page Configuration
@@ -51,12 +50,16 @@ if uploaded_file is not None:
         # Open video with OpenCV
         cap = cv2.VideoCapture(video_path)
 
+        # Initialize MediaPipe
         mp_pose = mp.solutions.pose
         pose = mp_pose.Pose()
 
-if not cap.isOpened():
+        if not cap.isOpened():
+
             st.error("Could not open video file.")
+
         else:
+
             frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
             fps = cap.get(cv2.CAP_PROP_FPS)
 
@@ -64,54 +67,118 @@ if not cap.isOpened():
 
             st.write(f"Frames detected: {frame_count}")
             st.write(f"FPS: {fps:.2f}")
-ret, frame = cap.read()
 
-if ret:
+            # Read first frame
+            ret, frame = cap.read()
 
-    rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            if ret:
 
-    results = pose.process(rgb)
+                rgb = cv2.cvtColor(
+                    frame,
+                    cv2.COLOR_BGR2RGB
+                )
 
-    if results.pose_landmarks:
+                results = pose.process(rgb)
 
-        landmarks = results.pose_landmarks.landmark
+                if results.pose_landmarks:
 
-        shoulder = [
-            landmarks[12].x,
-            landmarks[12].y
-        ]
+                    landmarks = results.pose_landmarks.landmark
 
-        elbow = [
-            landmarks[14].x,
-            landmarks[14].y
-        ]
+                    # Right elbow
+                    shoulder = [
+                        landmarks[12].x,
+                        landmarks[12].y
+                    ]
 
-        wrist = [
-            landmarks[16].x,
-            landmarks[16].y
-        ]
+                    elbow = [
+                        landmarks[14].x,
+                        landmarks[14].y
+                    ]
 
-        elbow_angle = calculate_angle(
-            shoulder,
-            elbow,
-            wrist
-        )
+                    wrist = [
+                        landmarks[16].x,
+                        landmarks[16].y
+                    ]
 
-        st.subheader("Biomechanics Analysis")
+                    elbow_angle = calculate_angle(
+                        shoulder,
+                        elbow,
+                        wrist
+                    )
 
-        st.metric(
-            "Right Elbow Angle",
-            f"{int(elbow_angle)}°"
-        )
+                    # Right knee
+                    hip = [
+                        landmarks[24].x,
+                        landmarks[24].y
+                    ]
 
-    else:
-        st.warning(
-            "No athlete detected in first frame."
-        )
+                    knee = [
+                        landmarks[26].x,
+                        landmarks[26].y
+                    ]
+
+                    ankle = [
+                        landmarks[28].x,
+                        landmarks[28].y
+                    ]
+
+                    knee_angle = calculate_angle(
+                        hip,
+                        knee,
+                        ankle
+                    )
+
+                    # Right hip
+                    hip_angle = calculate_angle(
+                        shoulder,
+                        hip,
+                        knee
+                    )
+
+                    st.subheader(
+                        "Biomechanics Analysis"
+                    )
+
+                    c1, c2, c3 = st.columns(3)
+
+                    with c1:
+                        st.metric(
+                            "Right Elbow Angle",
+                            f"{int(elbow_angle)}°"
+                        )
+
+                    with c2:
+                        st.metric(
+                            "Right Knee Angle",
+                            f"{int(knee_angle)}°"
+                        )
+
+                    with c3:
+                        st.metric(
+                            "Right Hip Angle",
+                            f"{int(hip_angle)}°"
+                        )
+
+                    st.success(
+                        "Athlete detected successfully."
+                    )
+
+                else:
+
+                    st.warning(
+                        "No athlete detected in first frame."
+                    )
+
+            else:
+
+                st.error(
+                    "Could not read the first frame."
+                )
+
         cap.release()
 
         st.info(
-            "OpenCV successfully opened the video. Next step is MediaPipe pose detection."
+            "OpenCV and MediaPipe analysis completed."
         )
 
 # Footer
