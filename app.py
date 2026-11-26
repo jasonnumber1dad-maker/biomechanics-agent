@@ -40,6 +40,7 @@ if uploaded_file is not None:
 
         # Save uploaded video
         tfile = tempfile.NamedTemporaryFile(delete=False)
+
         tfile.write(uploaded_file.getvalue())
 
         video_path = tfile.name
@@ -53,6 +54,7 @@ if uploaded_file is not None:
         # Initialize MediaPipe
         mp_pose = mp.solutions.pose
         mp_draw = mp.solutions.drawing_utils
+
         pose = mp_pose.Pose()
 
         if not cap.isOpened():
@@ -61,13 +63,25 @@ if uploaded_file is not None:
 
         else:
 
-            frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-            fps = cap.get(cv2.CAP_PROP_FPS)
+            frame_count = int(
+                cap.get(cv2.CAP_PROP_FRAME_COUNT)
+            )
 
-            st.subheader("Video Information")
+            fps = cap.get(
+                cv2.CAP_PROP_FPS
+            )
 
-            st.write(f"Frames detected: {frame_count}")
-            st.write(f"FPS: {fps:.2f}")
+            st.subheader(
+                "Video Information"
+            )
+
+            st.write(
+                f"Frames detected: {frame_count}"
+            )
+
+            st.write(
+                f"FPS: {fps:.2f}"
+            )
 
             # Read first frame
             ret, frame = cap.read()
@@ -80,12 +94,20 @@ if uploaded_file is not None:
                 )
 
                 results = pose.process(rgb)
-                
-                if results.pose_landmarks:
-                    mp_draw.draw_landmarks(frame,results.pose_landmarks,mp_pose.POSE_CONNECTIONS)
-                    landmarks = results.pose_landmarks.landmark
 
-                    # Right elbow
+                if results.pose_landmarks:
+
+                    mp_draw.draw_landmarks(
+                        frame,
+                        results.pose_landmarks,
+                        mp_pose.POSE_CONNECTIONS
+                    )
+
+                    landmarks = (
+                        results.pose_landmarks.landmark
+                    )
+
+                    # Right Elbow
                     shoulder = [
                         landmarks[12].x,
                         landmarks[12].y
@@ -107,7 +129,7 @@ if uploaded_file is not None:
                         wrist
                     )
 
-                    # Right knee
+                    # Right Knee
                     hip = [
                         landmarks[24].x,
                         landmarks[24].y
@@ -129,7 +151,7 @@ if uploaded_file is not None:
                         ankle
                     )
 
-                    # Right hip
+                    # Right Hip
                     hip_angle = calculate_angle(
                         shoulder,
                         hip,
@@ -155,16 +177,20 @@ if uploaded_file is not None:
                         )
 
                     with c3:
-                       st.metric(
+                        st.metric(
                             "Right Hip Angle",
                             f"{int(hip_angle)}°"
-    )
+                        )
 
                     st.image(
-                       cv2.cvtColor(frame, cv2.COLOR_BGR2RGB),
-                       caption="Pose Detection Frame",
-                       use_container_width=True
-)
+                        cv2.cvtColor(
+                            frame,
+                            cv2.COLOR_BGR2RGB
+                        ),
+                        caption="Pose Detection Frame",
+                        use_container_width=True
+                    )
+
                     st.success(
                         "Athlete detected successfully."
                     )
@@ -190,4 +216,6 @@ if uploaded_file is not None:
 # Footer
 st.divider()
 
-st.caption("© Apex Fastpitch Biomechanics Agent")
+st.caption(
+    "© Apex Fastpitch Biomechanics Agent"
+)
