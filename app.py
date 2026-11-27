@@ -1,7 +1,10 @@
 import streamlit as st
+
 from metrics import calculate_angle
 from pitching import calculate_pitching_score
 from reports import generate_feedback
+from analysis.analysis.pose import process_video
+
 
 import cv2
 import mediapipe as mp
