@@ -284,12 +284,18 @@ if uploaded_file is not None:
                             "Rating",
                             rating
                         )
-
                     with c6:
                         st.metric(
                             "Stride",
                             f"{avg_stride:.2f}"
                         )
+                  st.progress(
+                    confidence / 100
+                    )
+
+                st.write(
+                    f"Detection Confidence: {confidence:.1f}%"
+                    )      
                     if display_frame is not None:
 
                         st.image(
@@ -307,7 +313,25 @@ if uploaded_file is not None:
 
                     for item in feedback:
                         st.write(f"• {item}")
+                            report = f"""
+                            Apex Fastpitch Biomechanics Report
 
+                            Score: {score}
+                            Rating: {rating}
+
+                            Elbow Angle: {avg_elbow:.1f}
+                            Knee Angle: {avg_knee:.1f}
+                            Hip Angle: {avg_hip:.1f}
+                            Stride Length: {avg_stride:.2f}
+
+                            Detection Confidence: {confidence:.1f}%
+                            """
+
+                            st.download_button(
+                                "Download Report",
+                                report,
+                                file_name="apex_report.txt"
+                            )
 st.divider()
 
 st.caption(
