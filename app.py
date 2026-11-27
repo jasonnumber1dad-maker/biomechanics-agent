@@ -92,7 +92,7 @@ if uploaded_file is not None:
 
                 display_frame = None
 
-                frames_to_process = 30
+                frames_to_process = min(frame_count, 300)
 
                 for _ in range(frames_to_process):
 
@@ -209,11 +209,22 @@ if uploaded_file is not None:
                     )
 
                     score = calculate_pitching_score(
-                        avg_elbow,
-                        avg_knee,
-                        avg_hip
-                    )
+    avg_elbow,
+    avg_knee,
+    avg_hip
+)
 
+if score >= 90:
+    rating = "Elite"
+
+elif score >= 80:
+    rating = "Advanced"
+
+elif score >= 70:
+    rating = "Intermediate"
+
+else:
+    rating = "Development Needed"
                     feedback = generate_feedback(
                         avg_elbow,
                         avg_knee,
