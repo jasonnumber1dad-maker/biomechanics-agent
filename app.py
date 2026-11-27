@@ -218,7 +218,10 @@ if uploaded_file is not None:
                         sum(hip_angles)
                         / len(hip_angles)
                     )
-
+                    avg_stride = (
+                        sum(stride_lengths)
+                        / len(stride_lengths)
+                    )
                     score = calculate_pitching_score(
                        avg_elbow,
                        avg_knee,
@@ -246,7 +249,7 @@ if uploaded_file is not None:
                         "Biomechanics Analysis"
                     )
 
-                    c1, c2, c3, c4 = st.columns(4)
+                    c1, c2, c3, c4, c5, c6 = st.columns(6)
 
                     with c1:
                         st.metric(
@@ -271,7 +274,17 @@ if uploaded_file is not None:
                             "Score",
                             f"{score}/100"
                         )
+                    with c5:
+                       st.metric(
+                            "Rating",
+                            rating
+                        )
 
+                    with c6:
+                        st.metric(
+                            "Stride",
+                            f"{avg_stride:.2f}"
+                        )
                     if display_frame is not None:
 
                         st.image(
