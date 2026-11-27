@@ -18,8 +18,11 @@ st.set_page_config(
 )
 
 st.title("🥎 Apex Fastpitch Biomechanics Agent")
-st.caption("Version 0.6.0")
-
+st.caption("Version 0.7.0")
+analysis_type = st.radio(
+    "Analysis Type",
+    ["Pitching", "Hitting"]
+)
 st.markdown("""
 ### AI-Powered Softball Mechanics Analysis
 
@@ -90,6 +93,7 @@ if uploaded_file is not None:
                 knee_angles = []
                 hip_angles = []
                 stride_lengths = []
+                separation_angles = []
                 
                 display_frame = None
 
@@ -122,7 +126,12 @@ if uploaded_file is not None:
                         landmarks = (
                             results.pose_landmarks.landmark
                         )
+                        left_shoulder = landmarks[11]
+                        right_shoulder = landmarks[12]
 
+                        left_hip = landmarks[23]
+                        right_hip = landmarks[24]
+                        
                         shoulder = [
                             landmarks[12].x,
                             landmarks[12].y
@@ -157,6 +166,21 @@ if uploaded_file is not None:
                         right_ankle = landmarks[28]
 
                         stride_length = (
+                            shoulder_width = abs(
+                                left_shoulder.x - right_shoulder.x
+                            )
+    
+                            hip_width = abs(
+                                left_hip.x - right_hip.x
+                            )
+
+                        separation = abs(
+                            shoulder_width - hip_width
+                        )
+
+                        separation_angles.append(
+                            separation
+                        )
                             ((left_ankle.x - right_ankle.x) ** 2) +
                             ((left_ankle.y - right_ankle.y) ** 2)
                         ) ** 0.5
@@ -222,6 +246,10 @@ if uploaded_file is not None:
                         sum(stride_lengths)
                         / len(stride_lengths)
                     )
+                    avg_separation = (
+                        sum(separation_angles)
+                        / len(separation_angles)
+                    )
                     confidence = (
                         len(elbow_angles)
                         / frames_to_process
@@ -254,7 +282,7 @@ if uploaded_file is not None:
                         "Biomechanics Analysis"
                     )
 
-                    c1, c2, c3, c4, c5, c6 = st.columns(6)
+                    c1, c2, c3, c4, c5, c6, c7 = st.columns(6)
 
                     with c1:
                         st.metric(
