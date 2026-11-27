@@ -209,22 +209,22 @@ if uploaded_file is not None:
                     )
 
                     score = calculate_pitching_score(
-    avg_elbow,
-    avg_knee,
-    avg_hip
-)
+                       avg_elbow,
+                       avg_knee,
+                       avg_hip
+                    )
 
-if score >= 90:
-    rating = "Elite"
+                    if score >= 90:
+                       rating = "Elite"
 
-elif score >= 80:
-    rating = "Advanced"
+                    elif score >= 80:
+                       rating = "Advanced"
 
-elif score >= 70:
-    rating = "Intermediate"
+                    elif score >= 70:
+                       rating = "Intermediate"
 
-else:
-    rating = "Development Needed"
+                    else:
+                       rating = "Development Needed"
                     feedback = generate_feedback(
                         avg_elbow,
                         avg_knee,
