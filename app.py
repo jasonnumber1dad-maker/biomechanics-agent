@@ -222,6 +222,11 @@ if uploaded_file is not None:
                         sum(stride_lengths)
                         / len(stride_lengths)
                     )
+                    confidence = (
+                        len(elbow_angles)
+                        / frames_to_process
+                    ) * 100
+
                     score = calculate_pitching_score(
                        avg_elbow,
                        avg_knee,
