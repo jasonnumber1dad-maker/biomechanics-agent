@@ -89,7 +89,8 @@ if uploaded_file is not None:
                 elbow_angles = []
                 knee_angles = []
                 hip_angles = []
-
+                stride_lengths = []
+                
                 display_frame = None
 
                 frames_to_process = min(frame_count, 300)
@@ -152,6 +153,14 @@ if uploaded_file is not None:
                             landmarks[28].y
                         ]
 
+                        left_ankle = landmarks[27]
+                        right_ankle = landmarks[28]
+
+                        stride_length = (
+                            ((left_ankle.x - right_ankle.x) ** 2) +
+                            ((left_ankle.y - right_ankle.y) ** 2)
+                        ) ** 0.5
+                        
                         elbow_angle = calculate_angle(
                             shoulder,
                             elbow,
@@ -181,7 +190,9 @@ if uploaded_file is not None:
                         hip_angles.append(
                             hip_angle
                         )
-
+                        stride_lengths.append(
+                        stride_length
+                )
                 cap.release()
                 pose.close()
 
