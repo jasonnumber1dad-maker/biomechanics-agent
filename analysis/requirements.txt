@@ -1,4 +1,6 @@
-# Reads video frames
-
-def process_video():
-    pass
+mediapipe
+opencv-python
+numpy
+pandas
+plotly
+streamlit
