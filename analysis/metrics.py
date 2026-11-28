@@ -2,6 +2,10 @@ import numpy as np
 
 
 def calculate_angle(a, b, c):
+    """
+    Calculate angle between three points.
+    Point b is the vertex.
+    """
 
     a = np.array(a)
     b = np.array(b)
@@ -24,6 +28,9 @@ def calculate_angle(a, b, c):
 
 
 def calculate_swing_metrics(landmarks):
+    """
+    Calculate biomechanics metrics from pose landmarks.
+    """
 
     metrics = {}
 
@@ -55,6 +62,9 @@ def calculate_swing_metrics(landmarks):
 
 
 def score_metric(value, ideal, tolerance):
+    """
+    Convert a raw measurement into a 0-100 score.
+    """
 
     difference = abs(value - ideal)
 
@@ -67,26 +77,49 @@ def score_metric(value, ideal, tolerance):
 
 
 def overall_swing_score(metrics):
+    """
+    Generate an overall swing score.
+    """
 
-    front_knee_score = score_metric(
-        metrics["front_knee"],
+    left_knee_score = score_metric(
+        metrics["left_knee"],
         150,
         30
     )
 
-    rear_knee_score = score_metric(
-        metrics["rear_knee"],
+    right_knee_score = score_metric(
+        metrics["right_knee"],
         140,
         30
     )
 
+    left_elbow_score = score_metric(
+        metrics["left_elbow"],
+        100,
+        40
+    )
+
+    right_elbow_score = score_metric(
+        metrics["right_elbow"],
+        100,
+        40
+    )
+
     return round(
-        (front_knee_score + rear_knee_score) / 2,
+        (
+            left_knee_score +
+            right_knee_score +
+            left_elbow_score +
+            right_elbow_score
+        ) / 4,
         1
     )
 
 
 def get_rating(score):
+    """
+    Convert score into rating category.
+    """
 
     if score >= 90:
         return "Elite"
@@ -104,17 +137,30 @@ def get_rating(score):
 
 
 def get_recommendations(metrics):
+    """
+    Generate coaching recommendations.
+    """
 
     recommendations = []
 
-    if metrics["front_knee"] < 135:
+    if metrics["left_knee"] < 135:
         recommendations.append(
-            "Increase front leg stability through contact."
+            "Increase left leg stability through contact."
         )
 
-    if metrics["rear_knee"] < 125:
+    if metrics["right_knee"] < 125:
         recommendations.append(
-            "Improve rear leg drive and weight transfer."
+            "Improve right leg drive and weight transfer."
+        )
+
+    if metrics["left_elbow"] > 130:
+        recommendations.append(
+            "Maintain stronger lead arm structure."
+        )
+
+    if metrics["right_elbow"] > 130:
+        recommendations.append(
+            "Improve bat lag and connection."
         )
 
     if not recommendations:
