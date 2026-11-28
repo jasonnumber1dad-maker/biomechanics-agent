@@ -27,16 +27,28 @@ def calculate_swing_metrics(landmarks):
 
     metrics = {}
 
-    metrics["front_knee"] = calculate_angle(
-        landmarks["front_hip"],
-        landmarks["front_knee"],
-        landmarks["front_ankle"]
+    metrics["left_knee"] = calculate_angle(
+        landmarks["left_hip"],
+        landmarks["left_knee"],
+        landmarks["left_ankle"]
     )
 
-    metrics["rear_knee"] = calculate_angle(
-        landmarks["rear_hip"],
-        landmarks["rear_knee"],
-        landmarks["rear_ankle"]
+    metrics["right_knee"] = calculate_angle(
+        landmarks["right_hip"],
+        landmarks["right_knee"],
+        landmarks["right_ankle"]
+    )
+
+    metrics["left_elbow"] = calculate_angle(
+        landmarks["left_shoulder"],
+        landmarks["left_elbow"],
+        landmarks["left_wrist"]
+    )
+
+    metrics["right_elbow"] = calculate_angle(
+        landmarks["right_shoulder"],
+        landmarks["right_elbow"],
+        landmarks["right_wrist"]
     )
 
     return metrics
